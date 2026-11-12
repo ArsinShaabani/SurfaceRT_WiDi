@@ -1,0 +1,20 @@
+# build output
+out/
+build/winrt8/*.obj
+build/winrt8/*.exe
+build/winrt8/*.pdb
+build/winrt8/*.ilk
+build/winrt8/*.exp
+build/winrt8/*.lib
+
+# runtime artifacts
+*.log
+*.ppm
+*.jpg
+frame_*.ppm
+
+# editors / OS
+.vs/
+*.user
+*.suo
+.DS_Store

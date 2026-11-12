@@ -1,0 +1,59 @@
+# SurfaceRT-WiDi - Windows RT 8.1 / ARM build (nmake).
+#
+# Target: Windows RT 8.1, ARMv7 (NVIDIA Tegra 3). Build with the ARM cross
+# tools of Visual Studio 2013 (v120) and the Windows SDK 8.1 - both are the only
+# toolchains that can produce desktop binaries for Windows RT.
+#
+# Run build_rt.cmd, or from an "ARM Cross Tools Command Prompt":
+#   cd <repo>
+#   nmake /f build\winrt8\Makefile.RT
+
+OUTDIR = build\winrt8
+
+OBJDIR = $(OUTDIR)
+
+CFLAGS = /nologo /c /O2 /EHsc /MT /W3 $(CFLAGS_EXTRA) \
+         /D_UNICODE /DUNICODE /DWIN32_LEAN_AND_MEAN /D_WIN32_WINNT=0x0603 \
+         /D_CRT_SECURE_NO_WARNINGS /DNOMINMAX /Iinclude
+
+LIBS = ws2_32.lib iphlpapi.lib d2d1.lib dwrite.lib windowscodecs.lib \
+       user32.lib gdi32.lib advapi32.lib userenv.lib wtsapi32.lib ole32.lib shell32.lib
+
+CORE_SRC = src\core\protocol.cpp src\core\session.cpp src\core\rate_control.cpp \
+           src\core\beacon.cpp src\core\sink_engine.cpp src\core\log.cpp \
+           src\platform\winrt8\net_win32.cpp
+SINK_SRC = src\platform\winrt8\sink_app.cpp src\platform\winrt8\image_decoder.cpp \
+           src\platform\winrt8\presenter.cpp
+SERVICE_SRC = src\platform\winrt8\widi_service.cpp
+
+CORE_OBJ = $(OUTDIR)\protocol.obj $(OUTDIR)\session.obj $(OUTDIR)\rate_control.obj \
+           $(OUTDIR)\beacon.obj $(OUTDIR)\sink_engine.obj $(OUTDIR)\log.obj \
+           $(OUTDIR)\net_win32.obj
+SINK_OBJ = $(CORE_OBJ) $(OUTDIR)\sink_app.obj $(OUTDIR)\image_decoder.obj \
+           $(OUTDIR)\presenter.obj
+SERVICE_OBJ = $(CORE_OBJ) $(OUTDIR)\widi_service.obj
+
+ALL_SRC = $(CORE_SRC) $(SINK_SRC) $(SERVICE_SRC)
+ALL_HDR = include\widi\protocol.h include\widi\session.h include\widi\sink_engine.h \
+          include\widi\rate_control.h include\widi\beacon.h include\widi\net.h \
+          include\widi\bytes.h include\widi\clock.h include\widi\log.h \
+          include\widi\version.h src\platform\winrt8\image_decoder.h \
+          src\platform\winrt8\presenter.h
+
+all: $(OUTDIR)\widi_sink.exe $(OUTDIR)\widi_service.exe
+
+# One compilation pass produces every object file; touching any source or
+# header rebuilds the whole (small) project.
+$(OUTDIR)\sink_app.obj: $(ALL_SRC) $(ALL_HDR)
+	@if not exist "$(OUTDIR)" mkdir "$(OUTDIR)"
+	cl $(CFLAGS) /Fo$(OBJDIR)/ $(ALL_SRC)
+
+$(OUTDIR)\widi_sink.exe: $(SINK_OBJ)
+	link /NOLOGO /SUBSYSTEM:WINDOWS /OUT:$@ $(SINK_OBJ) $(LIBS)
+
+$(OUTDIR)\widi_service.exe: $(SERVICE_OBJ)
+	link /NOLOGO /SUBSYSTEM:CONSOLE /OUT:$@ $(SERVICE_OBJ) $(LIBS)
+
+clean:
+	@if exist "$(OUTDIR)\*.obj" del /q "$(OUTDIR)\*.obj"
+	@if exist "$(OUTDIR)\*.exe" del /q "$(OUTDIR)\*.exe"
