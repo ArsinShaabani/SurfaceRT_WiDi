@@ -19,6 +19,20 @@ cd <repo>
 build\winrt8\build_rt.cmd
 ```
 
+`build_rt.cmd` is a three-line wrapper around `build_rt.ps1`, which holds the
+real logic. This is deliberate: **cmd.exe treats a literal parenthesis inside an
+`if (...)` block as the end of that block**, so a path such as
+`C:\Program Files (x86)\...` or an `echo` line containing `(or 2015)` breaks the
+script with `... was unexpected at this time`. PowerShell has no such parsing
+trap, so all detection, quoting and error handling live there.
+
+If you prefer to call the PowerShell directly:
+
+```
+powershell -NoProfile -ExecutionPolicy Bypass -File build\winrt8\build_rt.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File build\winrt8\build_rt.ps1 -Clean
+```
+
 The script locates `vcvarsall.bat`, switches to `x86_arm`, and calls
 `nmake /f build\winrt8\Makefile.RT`. Output:
 
@@ -98,6 +112,8 @@ See `DEPLOY-RT.md` for what the installer does and the `widi.ini` reference.
 | `LNK2001: wWinMain` | you linked `sink_app.cpp` into the console subsystem target |
 | `error LNK2038: RuntimeLibrary mismatch` | `/MT` vs `/MD` mix; keep the flags from the makefile |
 | Device says "This app can't run on your PC" | code integrity is still on: the device is not jailbroken, or the binary is x86/x64 |
+| `... was unexpected at this time` from a .cmd | a parenthesis inside an `if (...)` block (old versions of `build_rt.cmd`); use `build_rt.ps1` or update the repo |
+| `No ARM-capable Visual Studio was found` | install VS2013 Update 5 or VS2015 Community **with** the ARM cross tools, plus Windows SDK 8.1. Newer Visual Studios cannot target Windows RT |
 
 ## Cross-checking a Windows build from Linux
 

@@ -83,7 +83,8 @@ Needs only `g++` (or `clang++`) and `make`. `make` directly also works.
 | `cl.exe` present but `windows.h` not found | use the *Developer Command Prompt*, not the plain one, or run `build.cmd` after `vcvarsall.bat` |
 | `clang++.exe` links against MSVC but fails | its `link.exe` is missing: install VS Build Tools, or use MinGW-w64 `g++.exe` |
 | Antivirus blocks `widi-pc.exe` | it is a freshly compiled local binary; add an exclusion or use `Send-Screen.ps1` instead |
-| `build.cmd rt` fails | ARM binaries need VS2013 (v120) + Windows SDK 8.1 - see `BUILD-RT.md` |
+| `build.cmd rt` fails | ARM binaries need VS2013 Update 5 / VS2015 Community + Windows SDK 8.1 with the ARM tools - see `BUILD-RT.md` |
+| `... was unexpected at this time` | that is cmd.exe choking on a parenthesis inside an `if` block; `build.cmd rt` and `build\winrt8\build_rt.cmd` now only wrap `build_rt.ps1`, which has no such trap. Update the repo, or run the `.ps1` directly |
 
 ## خلاصهٔ فارسی
 

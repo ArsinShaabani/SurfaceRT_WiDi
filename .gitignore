@@ -27,3 +27,4 @@ frame_*.ppm
 .dotnet/
 .dotnet-install.sh
 .dotnet-install.log
+.pwsh/
