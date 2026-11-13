@@ -136,7 +136,7 @@ docs/                    feasibility, architecture, protocol, build, deploy, roa
 | Reference sink + synthetic sender, end-to-end over TCP | verified (24/24 frames, 0 dropped) |
 | PC sender wire layout | verified byte-for-byte by `tools/dev/wire_check.py` |
 | PC sender compiles with the in-box C# 5 compiler | verified: `csc` against .NET Framework 4.8 reference assemblies, 0 errors |
-| `widi-pc.exe --selftest` | verified: 33/33 checks pass |
+| `widi-pc.exe --selftest` | verified: 32/32 checks pass |
 | Real C# sender handshake against the reference sink | verified (Hello/HelloAck/Bye accepted, sink logs the peer name and geometry) |
 | Windows RT binaries (`widi_sink.exe`, `widi_service.exe`) | source complete; must be compiled with VS2013+SDK 8.1 for ARM and validated on hardware |
 | Real Surface RT hardware test | not performed in this repository environment (no device available) |
