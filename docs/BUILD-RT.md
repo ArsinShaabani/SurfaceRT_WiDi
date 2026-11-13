@@ -50,7 +50,7 @@ nmake /f build\winrt8\Makefile.RT
 box or on Windows with MinGW. Do this before every device build:
 
 ```
-make test          # 22 test cases, includes real loopback sockets + fuzz feed
+make test          # 23 test cases, includes real loopback sockets + fuzz feed
 make               # builds the reference sink and a synthetic sender
 ```
 

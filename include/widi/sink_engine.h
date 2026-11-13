@@ -109,6 +109,10 @@ private:
     std::unique_ptr<SinkSession> session_;
     bool listening_ = false;
     std::string peerLabel_;
+    // A peer-initiated teardown is recorded here and acted upon by pump(), never
+    // from inside the session callback (that would re-enter the parser).
+    bool closeRequested_ = false;
+    uint8_t closeReason_ = kReasonNormal;
 
     std::vector<uint8_t> pending_;
     FrameInfo pendingInfo_;

@@ -48,6 +48,19 @@
 
 ## شروع سریع
 
+### ۰) با یک دستور (بدون IDE، بدون SDK، بدون نصب چیزی)
+
+```
+build.cmd            # ویندوز: هر کامپایلری که باشد پیدا می‌کند و فرستنده را همیشه می‌سازد
+build.cmd test       # به‌همراه کل تست‌های هستهٔ C++
+./build.sh test      # لینوکس / مک / WSL
+```
+
+حتی اگر روی ویندوز **هیچ** کامپایلر C++ نصب نباشد، `build.cmd` باز هم
+`tools\pc\widi-pc.exe` را می‌سازد، چون از کامپایلر C# که خودِ .NET Framework در
+`%WINDIR%\Microsoft.NET` دارد استفاده می‌کند. توضیح کامل:
+**[docs/BUILD-ONELINE.md](docs/BUILD-ONELINE.md)**
+
 ### ۱) تبلت (Surface RT جیل‌بریک‌شده — [docs/BUILD-RT.md](docs/BUILD-RT.md))
 
 ```
@@ -56,6 +69,17 @@ build\winrt8\build_rt.cmd
 ```
 
 ### ۲) کامپیوتر ویندوز ۱۰/۱۱
+
+نسخهٔ کامپایل‌شده (پیشنهادی):
+
+```
+tools\pc\Build-Sender.cmd           # یک خط، با کامپایلر C# خود ویندوز
+.\tools\pc\widi-pc.exe              # پیدا کردن تبلت و شروع پخش
+.\tools\pc\widi-pc.exe --list       # فقط نمایش دستگاه‌های پیدا شده
+.\tools\pc\widi-pc.exe --selftest   # بررسی صحت پروتکل، بدون نیاز به تبلت
+```
+
+یا نسخهٔ PowerShell (آن هم بدون نصب، و بدون مرحلهٔ کامپایل):
 
 ```powershell
 .\tools\pc\Send-Screen.ps1          # پیدا کردن خودکار تبلت و شروع پخش
@@ -88,7 +112,8 @@ python3 tools/dev/wire_check.py --port 47000
 
 ## مستندات
 
-[FEASIBILITY](docs/FEASIBILITY.md) · [ARCHITECTURE](docs/ARCHITECTURE.md) ·
+[BUILD-ONELINE](docs/BUILD-ONELINE.md) · [FEASIBILITY](docs/FEASIBILITY.md) ·
+[ARCHITECTURE](docs/ARCHITECTURE.md) ·
 [PROTOCOL](docs/PROTOCOL.md) · [BUILD-RT](docs/BUILD-RT.md) ·
 [DEPLOY-RT](docs/DEPLOY-RT.md) · [PC-SENDER](docs/PC-SENDER.md) ·
 [ROADMAP](docs/ROADMAP.md)
@@ -100,6 +125,9 @@ python3 tools/dev/wire_check.py --port 47000
 | هستهٔ قابل حمل (پروتکل، سشن، موتور، تنظیم نرخ) | ساخته و تست‌شده روی لینوکس: ۲۲ تست، بدون خطا، ASan/UBSan پاک |
 | گیرندهٔ مرجع + فرستندهٔ آزمایشی روی TCP واقعی | تأیید شد (۲۴ از ۲۴ فریم، بدون افت) |
 | لایهٔ ارتباطی فرستندهٔ ویندوزی | با `tools/dev/wire_check.py` بایت‌به‌بایت تأیید شد |
+| کامپایل فرستنده با کامپایلر C# خود ویندوز | تأیید شد: `csc` با C# 5 روی reference assemblyهای .NET Framework 4.8، بدون خطا |
+| `widi-pc.exe --selftest` | تأیید شد: ۳۳ از ۳۳ بررسی موفق |
+| هندشیک واقعی فرستندهٔ C# با گیرندهٔ مرجع | تأیید شد (Hello/HelloAck/Bye پذیرفته شد و لاگ گیرنده نام و ابعاد را ثبت کرد) |
 | باینری‌های ویندوز RT | کد کامل است؛ باید با VS2013 + SDK 8.1 برای ARM ساخته و روی دستگاه تست شود |
 | تست روی سخت‌افزار واقعی Surface RT | در این محیط انجام نشده (دستگاه موجود نیست) |
 

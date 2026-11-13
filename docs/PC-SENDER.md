@@ -1,5 +1,23 @@
 # Using the PC side (Windows 10/11, nothing installed)
 
+Two senders are available and share the same protocol implementation:
+
+| Sender | How you get it | When to use it |
+|---|---|---|
+| `tools\pc\widi-pc.exe` | `tools\pc\Build-Sender.cmd` (one line, Windows' own C# compiler) | recommended: no PowerShell policy issues, starts instantly |
+| `tools\pc\Send-Screen.ps1` | nothing to build | script-only machines, or if you want to read/patch the logic quickly |
+
+```
+tools\pc\Build-Sender.cmd
+.\tools\pc\widi-pc.exe --selftest     # protocol verification, no tablet needed
+.\tools\pc\widi-pc.exe --list
+.\tools\pc\widi-pc.exe --host 192.168.1.50 --fps 24 --quality 65
+```
+
+The executable accepts the same options as the script (`--host`, `--port`,
+`--discovery-port`, `--fps`, `--quality`, `--max-width`, `--no-input`,
+`--seconds`, `--list`, `--selftest`, `--help`).
+
 ```powershell
 # 1. find the tablet and stream to it
 .\tools\pc\Send-Screen.ps1

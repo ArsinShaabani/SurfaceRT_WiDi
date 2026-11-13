@@ -85,6 +85,7 @@ void SinkEngine::pump(int timeoutMs) {
     uint8_t buffer[64 * 1024];
     // Bounded drain: never starve presentation for longer than a few reads.
     for (int round = 0; round < 8; ++round) {
+        if (!connection_) return;  // closed by the previous iteration
         const int n = connection_->recv_some(buffer, sizeof(buffer));
         if (n < 0) {
             close_connection(kReasonPeerClosed);
@@ -92,11 +93,17 @@ void SinkEngine::pump(int timeoutMs) {
         }
         if (n == 0) break;
         session_->feed(buffer, static_cast<size_t>(n));
+        if (closeRequested_) {
+            closeRequested_ = false;
+            close_connection(closeReason_);
+            return;
+        }
         if (session_->state() == SessionState::Closed) {
             close_connection(kReasonPeerClosed);
             return;
         }
     }
+    if (!connection_) return;
 
     drain_and_present();
     maybe_send_stats(now_ms());
@@ -125,6 +132,7 @@ void SinkEngine::accept_if_pending(int timeoutMs) {
     windowDecodeMsSum_ = 0;
     totalDecodeMsSum_ = 0;
     rate_.reset();
+    closeRequested_ = false;
     stats_.rate = rate_.current();
 
     WIDI_LOGI("sender connected: %s", peerLabel_.c_str());
@@ -142,6 +150,7 @@ void SinkEngine::close_connection(uint8_t reason) {
     connection_.reset();
     hasPending_ = false;
     pending_.clear();
+    closeRequested_ = false;
     peerLabel_.clear();
     stats_.peer.clear();
     WIDI_LOGI("sender disconnected: %s (reason %u)", who.c_str(), reason);
@@ -182,8 +191,11 @@ void SinkEngine::on_frame(const FrameInfo& info, const uint8_t* data, size_t siz
 void SinkEngine::on_input(const InputEvent& ev) { host_.on_remote_input(ev); }
 
 void SinkEngine::on_peer_gone(uint8_t reason) {
+    // Record only: closing the socket here would re-enter the session parser that
+    // is currently running inside feed(). pump() performs the teardown.
     WIDI_LOGI("peer said goodbye (reason %u)", reason);
-    close_connection(reason);
+    closeRequested_ = true;
+    closeReason_ = reason;
 }
 
 void SinkEngine::on_ready(const HelloInfo& peer) {

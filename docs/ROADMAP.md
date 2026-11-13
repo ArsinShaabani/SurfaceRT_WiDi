@@ -6,7 +6,7 @@
   rate control, WIC decode, Direct2D presentation with GDI fallback.
 - Windows service host with session-aware launching and crash recovery.
 - Zero-install PC sender with live adaptation and touch-to-cursor remoting.
-- 22 test cases / ~4,200 assertions over the portable core (codecs, framing,
+- 23 test cases / ~4,200 assertions over the portable core (codecs, framing,
   resync,
   bounded buffering, engine pacing, real sockets, adaptation policy,
   random-input fuzzing); clean under AddressSanitizer + UBSan.

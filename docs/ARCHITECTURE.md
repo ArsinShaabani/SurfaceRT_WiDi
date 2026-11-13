@@ -32,7 +32,7 @@
 | `src/apps/console/*.cpp` | reference sink + synthetic sender for Linux | dev host |
 | `tools/pc/Send-Screen.ps1`, `tools/pc/lib/WiDiNative.cs` | capture/encode/inject sender, compiled in memory | PC |
 | `tools/dev/wire_check.py` | byte-exact port of the C# encoder for cross-language checks | dev host |
-| `tests/test_main.cpp` | 22 test cases (~4,200 assertions): codecs, session, engine, sockets, adaptation, fuzzing | dev host |
+| `tests/test_main.cpp` | 23 test cases (~4,200 assertions): codecs, session, engine, sockets, adaptation, fuzzing | dev host |
 
 ## Threading model
 

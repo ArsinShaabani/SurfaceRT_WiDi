@@ -794,6 +794,52 @@ void test_fuzz_feed_is_memory_safe() {
     CHECK_EQ(obs.frames.size(), 1u);
 }
 
+
+void test_engine_peer_bye_then_reconnect() {
+    // Regression: a peer-initiated Bye used to make pump() touch a socket that
+    // the teardown had already destroyed (segfault seen with the real C# sender).
+    FakeHost host;
+    SinkEngine engine(host);
+    SinkConfig cfg;
+    cfg.tcpPort = 0;
+    cfg.broadcastBeacons = false;
+    cfg.statsIntervalMs = 20;
+    std::string err;
+    CHECK(engine.start(cfg, &err));
+    const uint16_t port = engine.config().tcpPort;
+
+    std::unique_ptr<IConnection> client = connect_tcp("127.0.0.1", port, 1000, &err);
+    CHECK(client != nullptr);
+    if (!client) return;
+
+    const std::vector<uint8_t> hello = make_hello_bytes();
+    CHECK(client->send_all(hello.data(), hello.size()));
+    for (int i = 0; i < 25 && !engine.connected(); ++i) engine.pump(20);
+    CHECK(engine.connected());
+
+    const uint8_t byeBody = static_cast<uint8_t>(kReasonNormal);
+    const std::vector<uint8_t> bye = encode_message(MsgType::Bye, 0, 5, &byeBody, 1);
+    CHECK(client->send_all(bye.data(), bye.size()));
+
+    for (int i = 0; i < 10; ++i) engine.pump(10);
+    CHECK(!engine.connected());
+    CHECK(!host.connected);
+    client->close();
+
+    // The listener must be usable again for the next sender.
+    std::unique_ptr<IConnection> second = connect_tcp("127.0.0.1", port, 1000, &err);
+    CHECK(second != nullptr);
+    if (second) {
+        CHECK(second->send_all(hello.data(), hello.size()));
+        for (int i = 0; i < 25 && !engine.connected(); ++i) engine.pump(20);
+        CHECK(engine.connected());
+        CHECK_EQ(host.connects, 2);
+        second->close();
+        for (int i = 0; i < 20 && engine.connected(); ++i) engine.pump(10);
+    }
+    engine.stop();
+}
+
 int main() {
     struct TestCase {
         const char* name;
@@ -821,6 +867,7 @@ int main() {
         {"loopback stream", test_loopback_stream},
         {"engine stream", test_engine_stream},
         {"engine decode failures", test_engine_counts_decode_failures},
+        {"engine peer bye + reconnect", test_engine_peer_bye_then_reconnect},
         {"fuzz feed", test_fuzz_feed_is_memory_safe},
     };
 

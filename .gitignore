@@ -7,6 +7,10 @@ build/winrt8/*.ilk
 build/winrt8/*.exp
 build/winrt8/*.lib
 
+# build output from build.cmd / Build-Sender.cmd
+tools/pc/widi-pc.exe
+*.obj
+
 # runtime artifacts
 *.log
 *.ppm
@@ -18,3 +22,8 @@ frame_*.ppm
 *.user
 *.suo
 .DS_Store
+
+# local validation toolchain (not part of the project)
+.dotnet/
+.dotnet-install.sh
+.dotnet-install.log
